@@ -1,0 +1,60 @@
+-- Step 1: Create Tables
+CREATE TABLE Customer (
+    Custid INT PRIMARY KEY,
+    Custname VARCHAR(100),
+    Addr VARCHAR(100),
+    phno VARCHAR(15),
+    panno VARCHAR(20)
+);
+
+CREATE TABLE Loan (
+    Loanid INT PRIMARY KEY,
+    Amount NUMERIC,
+    Interest NUMERIC,
+    Custid INT REFERENCES Customer(Custid)
+);
+
+CREATE TABLE Account (
+    Acctno INT PRIMARY KEY,
+    Accbal NUMERIC,
+    Custid INT REFERENCES Customer(Custid)
+);
+
+-- Step 2: Display account balance of 'ARUN'
+SELECT A.Accbal
+FROM Account A
+JOIN Customer C ON A.Custid = C.Custid
+WHERE C.Custname = 'ARUN';
+
+-- Step 3: Update interest where Accbal > 50% of Loan amount
+UPDATE Loan
+SET Interest = Interest + (Interest * 0.01)
+WHERE Custid IN (
+    SELECT A.Custid
+    FROM Account A
+    JOIN Loan L ON A.Custid = L.Custid
+    WHERE A.Accbal > (L.Amount * 0.5)
+);
+
+-- Step 4: Create a view with Accbal and Loan Amount
+CREATE OR REPLACE VIEW CustomerFinance AS
+SELECT C.Custid, C.Custname, A.Accbal, L.Amount AS LoanAmount
+FROM Customer C
+JOIN Account A ON C.Custid = A.Custid
+JOIN Loan L ON C.Custid = L.Custid;
+
+-- Step 5: Trigger to check for minimum balance (e.g. ₹1000)
+CREATE OR REPLACE FUNCTION CheckMinBalance()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.Accbal < 1000 THEN
+        RAISE EXCEPTION 'Minimum balance of ₹1000 must be maintained.';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_min_balance
+BEFORE INSERT OR UPDATE ON Account
+FOR EACH ROW
+EXECUTE FUNCTION CheckMinBalance();
