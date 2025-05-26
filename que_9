@@ -1,39 +1,37 @@
--- Step 1: Create Passenger Table
-CREATE TABLE Passenger (
-    PNR_NO SERIAL PRIMARY KEY,
-    Name VARCHAR(50),
-    Age INT,
-    Gender CHAR(1),
-    TicketNo VARCHAR(20)
+-- Create Table
+CREATE TABLE Bank (
+    acc_no INT PRIMARY KEY,
+    name VARCHAR(100),
+    balance NUMERIC(10,2),
+    branch VARCHAR(50)
 );
 
--- Step 2: Insert Sample Data
-INSERT INTO Passenger (Name, Age, Gender, TicketNo) VALUES
-('SANDRA', 45, 'F', 'T101'),
-('SAMIRA', 52, 'F', 'T102'),
-('SURESH', 38, 'M', 'T103'),
-('SANTHOSH', 41, 'M', 'T104'),
-('ELENA', 60, 'F', 'T105'),
-('EDWARD', 55, 'M', 'T106'),
-('JOHN', 25, 'M', 'T107');
+-- Insert Records
+INSERT INTO Bank VALUES
+(1, 'Ravi', 15000.00, 'Mumbai'),
+(2, 'Anita', 20000.00, 'Hyderabad'),
+(3, 'Ramesh', 10000.00, 'Delhi'),
+(4, 'Sonia', 30000.00, 'Delhi'),
+(5, 'Arjun', 50000.00, 'Chennai');
 
--- Q1: Display unique PNR_NO of all passengers
-SELECT DISTINCT PNR_NO FROM Passenger;
+-- PL/pgSQL Code to Reverse a Number
+DO $$
+DECLARE
+    num INT := 1234;
+    rev INT := 0;
+    rem INT;
+BEGIN
+    WHILE num > 0 LOOP
+        rem := num % 10;
+        rev := rev * 10 + rem;
+        num := num / 10;
+    END LOOP;
+    RAISE NOTICE 'Reversed Number: %', rev;
+END;
+$$;
 
--- Q2: Display all the names of male passengers
-SELECT Name FROM Passenger WHERE Gender = 'M';
+-- Delete all accounts in 'Delhi' branch
+DELETE FROM Bank WHERE branch = 'Delhi';
 
--- Q3: Display the ticket numbers and names of all the passengers
-SELECT TicketNo, Name FROM Passenger;
-
--- Q4: Find the ticket numbers of the passengers whose name start with ‘S’ and ends with ‘A’
-SELECT TicketNo FROM Passenger WHERE Name LIKE 'S%A';
-
--- Q5: Find the names of Passengers whose age is between 40 and 60
-SELECT Name FROM Passenger WHERE Age BETWEEN 40 AND 60;
-
--- Q6: Display all the passengers names beginning with ‘E’
-SELECT Name FROM Passenger WHERE Name LIKE 'E%';
-
--- Q7: Display the sorted list of Passengers names
-SELECT Name FROM Passenger ORDER BY Name ASC;
+-- Display customer names from Mumbai or Hyderabad
+SELECT name FROM Bank WHERE branch IN ('Mumbai', 'Hyderabad');
