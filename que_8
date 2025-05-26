@@ -1,55 +1,44 @@
--- Step 1: Create Table STUD1
-CREATE TABLE STUD1 (
-    REG_NO INT PRIMARY KEY,
-    NAME VARCHAR(50),
-    MARK_1 INT,
-    MARK_2 INT,
-    RESULT VARCHAR(10)
+-- Step 1: Create Table
+CREATE TABLE Passenger (
+    PNR_NO INT,
+    Ticket_No INT,
+    Name VARCHAR(100),
+    Gender VARCHAR(10),
+    Age INT
 );
 
--- Step 2: Insert Values into STUD1
-INSERT INTO STUD1 VALUES
-(101, 'AAA', 89, 80, 'PASS'),
-(102, 'BBB', 70, 75, 'PASS'),
-(103, 'CCC', 65, 70, 'PASS'),
-(104, 'DDD', 95, 100, 'PASS');
+-- Step 2: Insert Sample Data
+INSERT INTO Passenger VALUES
+(1001, 501, 'SITA', 'Female', 35),
+(1002, 502, 'RAJ', 'Male', 45),
+(1003, 503, 'SUNDARA', 'Male', 55),
+(1004, 504, 'ANITA', 'Female', 25),
+(1005, 505, 'ELENA', 'Female', 42),
+(1006, 506, 'SAMUELA', 'Male', 60),
+(1007, 507, 'EMILY', 'Female', 29),
+(1008, 508, 'SHIVA', 'Male', 41);
 
--- Step 3: Create Table STUD2
-CREATE TABLE STUD2 (
-    NAME VARCHAR(50),
-    GRADE CHAR(1)
-);
+-- 1. Display unique PNR_NO of all passengers
+SELECT DISTINCT PNR_NO FROM Passenger;
 
--- Step 4: Insert Values into STUD2
-INSERT INTO STUD2 VALUES
-('AAA', 'S'),
-('BBB', 'A'),
-('CCC', 'B'),
-('DDD', 'S');
+-- 2. Display all the names of male passengers
+SELECT Name FROM Passenger WHERE Gender = 'Male';
 
--- Q1: Left Outer Join
-SELECT S1.NAME, S2.GRADE
-FROM STUD1 S1
-LEFT JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+-- 3. Display the ticket numbers and names of all the passengers
+SELECT Ticket_No, Name FROM Passenger;
 
--- Q2: Right Outer Join
-SELECT S2.NAME, S1.REG_NO, S1.RESULT
-FROM STUD1 S1
-RIGHT JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+-- 4. Find the ticket numbers of passengers whose name starts with ‘S’ and ends with ‘A’
+SELECT Ticket_No FROM Passenger
+WHERE Name LIKE 'S%A';
 
--- Q3: Full Outer Join
-SELECT COALESCE(S1.NAME, S2.NAME) AS NAME, S1.REG_NO
-FROM STUD1 S1
-FULL OUTER JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+-- 5. Find the names of passengers whose age is between 40 and 60
+SELECT Name FROM Passenger
+WHERE Age BETWEEN 40 AND 60;
 
--- Q4: Simple Procedure to Display 'Hello World!'
-CREATE OR REPLACE PROCEDURE say_hello()
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RAISE NOTICE 'Hello World!';
-END;
-$$;
+-- 6. Display all passenger names beginning with ‘E’
+SELECT Name FROM Passenger
+WHERE Name LIKE 'E%';
 
--- To call the procedure
-CALL say_hello();
+-- 7. Display the sorted list of passengers’ names
+SELECT Name FROM Passenger
+ORDER BY Name;
