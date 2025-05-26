@@ -13,6 +13,22 @@ CREATE TABLE Loan (
     EMI NUMERIC
 );
 
+---insert values for lab output----
+INSERT INTO Customer (Custid, Custname, Age, phone) VALUES
+(1, 'Alice', 30, '9876543210'),
+(2, 'Bob', 40, '8765432109'),
+(3, 'Charlie', 25, '7654321098'),
+(4, 'Diana', 35, '6543210987'),
+(5, 'Ethan', 28, '5432109876');
+
+INSERT INTO Loan (Loanid, Amount, Custid, EMI) VALUES
+(101, 40000, 1, 4000),
+(102, 60000, 2, 5000),
+(103, 80000, 3, 6500),
+(104, 30000, 1, 2800),
+(105, 70000, 2, 6000);
+
+------------------------------------
 -- Step 2: Query - Customers with loan > 50,000
 SELECT Custname 
 FROM Customer 
