@@ -1,0 +1,68 @@
+-- Step 1: Create Department Table
+CREATE TABLE Department (
+    Depno INT PRIMARY KEY,
+    Depname VARCHAR(15),
+    Deplocation VARCHAR(10)
+);
+
+-- Step 2: Create Employee Table
+CREATE TABLE Employee (
+    Empno INT PRIMARY KEY,
+    Empname VARCHAR(20),
+    Designation VARCHAR(10),
+    Date_of_join DATE,
+    Salary NUMERIC(9,2) NOT NULL,
+    Depno INT REFERENCES Department(Depno)
+);
+
+-- Step 3: Insert sample data
+INSERT INTO Department VALUES
+(10, 'HR', 'Chennai'),
+(20, 'Marketing', 'Delhi'),
+(30, 'Finance', 'Mumbai');
+
+INSERT INTO Employee VALUES
+(101, 'Arun', 'Manager', '2019-06-15', 75000, 10),
+(102, 'Divya', 'Analyst', '2020-01-12', 65000, 20),
+(103, 'Kumar', 'Clerk', '2021-03-25', 40000, 10),
+(104, 'Sneha', 'Executive', '2022-08-30', 55000, 30);
+
+-- Step 4: Count of employees per department in descending depno order
+SELECT Depno, COUNT(*) AS EmpCount
+FROM Employee
+GROUP BY Depno
+ORDER BY Depno DESC;
+
+-- Step 5: List departments where employees are working
+SELECT DISTINCT D.Depname
+FROM Department D
+JOIN Employee E ON D.Depno = E.Depno;
+
+-- Step 6: List employees whose Depno is not 01
+SELECT Empname FROM Employee WHERE Depno != 1;
+
+-- Step 7: Add 'total' field to student table
+CREATE TABLE Student (
+    Regno INT,
+    Name VARCHAR(50),
+    Mark1 INT,
+    Mark2 INT,
+    Mark3 INT,
+    Total INT
+);
+
+-- Step 8: Insert 5 student records without total, then calculate it
+INSERT INTO Student (Regno, Name, Mark1, Mark2, Mark3) VALUES
+(1, 'Arun', 80, 90, 85),
+(2, 'Divya', 75, 70, 80),
+(3, 'Kumar', 60, 65, 70),
+(4, 'Sneha', 88, 85, 90),
+(5, 'Ravi', 50, 55, 60);
+
+UPDATE Student
+SET Total = Mark1 + Mark2 + Mark3;
+
+-- Step 9: List employee names with department names
+SELECT E.Empname, D.Depname
+FROM Employee E
+JOIN Department D ON E.Depno = D.Depno;
