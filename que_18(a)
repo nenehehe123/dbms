@@ -1,0 +1,46 @@
+-- Step 1: Create Employee Table
+CREATE TABLE Employee (
+    Id INT PRIMARY KEY,
+    Name VARCHAR(100),
+    BasicPay NUMERIC,
+    DOB DATE,
+    Dept VARCHAR(50)
+);
+
+-- Step 2: Insert sample data
+INSERT INTO Employee VALUES
+(1, 'Arun', 30000, '2000-01-01', 'HR'),
+(2, 'Divya', 40000, '1999-05-15', 'IT');
+
+-- Step 3: Procedure to generate payslip
+CREATE OR REPLACE PROCEDURE PrintPayslip(empid INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    bp NUMERIC;
+    da NUMERIC;
+    hra NUMERIC;
+    tax NUMERIC;
+    ded NUMERIC;
+    net_salary NUMERIC;
+    emp_name VARCHAR;
+BEGIN
+    SELECT BasicPay, Name INTO bp, emp_name FROM Employee WHERE Id = empid;
+    da := bp * 0.80;
+    hra := bp * 0.20;
+    tax := bp * 0.10;
+    ded := bp * 0.05;
+    net_salary := bp + da + hra - tax - ded;
+    
+    RAISE NOTICE 'Payslip for %', emp_name;
+    RAISE NOTICE 'Basic Pay: %', bp;
+    RAISE NOTICE 'DA: %', da;
+    RAISE NOTICE 'HRA: %', hra;
+    RAISE NOTICE 'TAX: %', tax;
+    RAISE NOTICE 'Deduction: %', ded;
+    RAISE NOTICE 'Net Salary: %', net_salary;
+END;
+$$;
+
+-- Example call:
+-- CALL PrintPayslip(1);
