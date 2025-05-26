@@ -1,42 +1,44 @@
--- Step 1: Create Bank Table
+-- Step 1: Create the Bank table
 CREATE TABLE Bank (
     acc_no INT PRIMARY KEY,
-    name VARCHAR(50),
-    balance NUMERIC(10,2),
-    branch VARCHAR(50)
+    name VARCHAR(100),
+    balance NUMERIC,
+    branch VARCHAR(100)
 );
 
--- Step 2: Insert Sample Data
-INSERT INTO Bank (acc_no, name, balance, branch) VALUES
-(101, 'Rahul', 1200.00, 'Mumbai'),
-(102, 'Sneha', 300.00, 'Delhi'),
-(103, 'Ajay', 450.00, 'Hydrabad'),
-(104, 'Priya', 600.00, 'Chennai'),
-(105, 'Ravi', 200.00, 'Delhi');
+-- Step 2: Insert sample data
+INSERT INTO Bank VALUES
+(101, 'Arun', 450, 'Delhi'),
+(102, 'Divya', 1000, 'Mumbai'),
+(103, 'Kumar', 300, 'Chennai'),
+(104, 'Sneha', 750, 'Hyderabad'),
+(105, 'Ravi', 200, 'Delhi');
 
--- Step 3: PL/pgSQL Function to Notify Low Balance
-CREATE OR REPLACE FUNCTION check_low_balance(p_acc_no INT)
-RETURNS TEXT AS $$
+-- Step 3: Procedure to notify low balance
+CREATE OR REPLACE PROCEDURE NotifyLowBalance(IN acc INT)
+LANGUAGE plpgsql
+AS $$
 DECLARE
-    bal NUMERIC;
+    acc_bal NUMERIC;
+    acc_name VARCHAR;
 BEGIN
-    SELECT balance INTO bal FROM Bank WHERE acc_no = p_acc_no;
+    SELECT balance, name INTO acc_bal, acc_name FROM Bank WHERE acc_no = acc;
 
-    IF NOT FOUND THEN
-        RETURN 'Account not found.';
-    ELSIF bal < 500 THEN
-        RETURN format('Alert: Balance is low (₹%.2f)', bal);
+    IF acc_bal < 500 THEN
+        RAISE NOTICE 'Alert: %''s account has low balance of ₹%', acc_name, acc_bal;
     ELSE
-        RETURN format('Balance is sufficient (₹%.2f)', bal);
+        RAISE NOTICE '%''s account balance is sufficient: ₹%', acc_name, acc_bal;
     END IF;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
--- Step 4: Delete Accounts from 'Delhi' Branch
-DELETE FROM Bank
-WHERE branch = 'Delhi';
+-- Example call:
+-- CALL NotifyLowBalance(101);
+-- CALL NotifyLowBalance(102);
 
--- Step 5: Display Customers from Mumbai or Hydrabad
-SELECT name, branch
-FROM Bank
-WHERE branch IN ('Mumbai', 'Hydrabad');
+-- Step 4: Delete all accounts from the 'Delhi' branch
+DELETE FROM Bank WHERE branch = 'Delhi';
+
+-- Step 5: Display customers from Mumbai or Hyderabad
+SELECT name FROM Bank
+WHERE branch IN ('Mumbai', 'Hyderabad');
