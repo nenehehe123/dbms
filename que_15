@@ -1,0 +1,46 @@
+-- Step 1: Create dept_details Table
+CREATE TABLE dept_details (
+    dept_no INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    location VARCHAR(50)
+);
+
+-- Insert Sample Departments
+INSERT INTO dept_details VALUES
+(1, 'CSE', 'Chennai'),
+(2, 'ECE', 'Bangalore'),
+(3, 'EEE', 'Hyderabad');
+
+-- Step 2: Create student Table
+CREATE TABLE student (
+    reg_no INT PRIMARY KEY,
+    name VARCHAR(50),
+    dept_no INT,
+    FOREIGN KEY (dept_no) REFERENCES dept_details(dept_no)
+);
+
+-- Insert Sample Students
+INSERT INTO student VALUES
+(101, 'Anu', 1),
+(102, 'Ravi', 1),
+(103, 'Meena', 2),
+(104, 'Karan', 1),
+(105, 'John', 3);
+
+-- Step 3: Create the Function to Count Students
+CREATE OR REPLACE FUNCTION count_students_in_dept(dno INT)
+RETURNS INT AS $$
+DECLARE
+    total INT;
+BEGIN
+    SELECT COUNT(*) INTO total
+    FROM student
+    WHERE dept_no = dno;
+
+    RETURN total;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Step 4: Example Usage
+-- SELECT count_students_in_dept(1); -- Output: 3 (for CSE)
+-- SELECT count_students_in_dept(2); -- Output: 1 (for ECE)
