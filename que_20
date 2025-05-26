@@ -1,0 +1,56 @@
+-- Step 1: Create the Book Table
+CREATE TABLE Book (
+    acc_no INT PRIMARY KEY,
+    username VARCHAR(50),
+    bookno INT,
+    days INT,
+    created_on DATE
+);
+
+-- Step 2: Insert Sample Data
+INSERT INTO Book (acc_no, username, bookno, days, created_on) VALUES
+(201, 'John', 601, 4, '2023-06-16'),
+(202, 'Jessica', 602, 7, '2023-06-14'),
+(203, 'James', 603, 2, '2023-07-18'),
+(204, 'Alice', 604, 5, '2023-07-10'),
+(205, 'Jack', 605, 8, '2023-08-20');
+
+-- Step 3: PL/pgSQL Procedure to Calculate Fine (Rs.5 per day)
+CREATE OR REPLACE FUNCTION calculate_fine(p_acc_no INT)
+RETURNS INT AS $$
+DECLARE
+    overdue_days INT;
+BEGIN
+    SELECT days INTO overdue_days FROM Book WHERE acc_no = p_acc_no;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Account not found';
+        RETURN NULL;
+    END IF;
+
+    RETURN overdue_days * 5;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Step 4: PL/pgSQL Block to Find Greatest of Three Numbers
+DO $$
+DECLARE
+    a INT := 12;
+    b INT := 45;
+    c INT := 30;
+    max_val INT;
+BEGIN
+    max_val := GREATEST(a, b, c);
+    RAISE NOTICE 'Greatest number is: %', max_val;
+END $$;
+
+-- Step 5: Query - Count of Books by Users Starting with 'J'
+SELECT username, COUNT(*) AS total_books
+FROM Book
+WHERE username ILIKE 'J%'
+GROUP BY username;
+
+-- Step 6: Query - Users with Accounts Created After 15th of Month
+SELECT username, acc_no
+FROM Book
+WHERE EXTRACT(DAY FROM created_on) > 15;
