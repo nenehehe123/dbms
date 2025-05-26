@@ -1,0 +1,44 @@
+-- Step 1: Create the Bank Table
+CREATE TABLE Bank (
+    acc_no INT PRIMARY KEY,
+    name VARCHAR(50),
+    balance NUMERIC(10,2),
+    branch VARCHAR(50)
+);
+
+-- Step 2: Insert Sample Data
+INSERT INTO Bank VALUES
+(1001, 'Anu', 450.00, 'Chennai'),
+(1002, 'Ravi', 1000.00, 'Delhi'),
+(1003, 'Meena', 300.00, 'Hyderabad'),
+(1004, 'Kiran', 800.00, 'Mumbai');
+
+-- Step 3: Create PL/pgSQL Procedure to Check Balance
+CREATE OR REPLACE PROCEDURE check_balance(accno INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    bal NUMERIC;
+    uname VARCHAR;
+BEGIN
+    SELECT name, balance INTO uname, bal FROM Bank WHERE acc_no = accno;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Account not found.';
+        RETURN;
+    END IF;
+
+    RAISE NOTICE 'Customer Name: %', uname;
+    RAISE NOTICE 'Current Balance: ₹%', bal;
+
+    IF bal < 500 THEN
+        RAISE NOTICE '⚠️ Alert: Account balance is below minimum (₹500)!';
+    ELSE
+        RAISE NOTICE '✅ Balance is sufficient.';
+    END IF;
+END;
+$$;
+
+-- Step 4: Example Call
+-- CALL check_balance(1001); -- Should show low balance alert
+-- CALL check_balance(1002); -- Should show sufficient balance
