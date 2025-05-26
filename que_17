@@ -1,44 +1,65 @@
--- Step 1: Create the Bank Table
-CREATE TABLE Bank (
-    acc_no INT PRIMARY KEY,
-    name VARCHAR(50),
-    balance NUMERIC(10,2),
-    branch VARCHAR(50)
+-- Step 1: Create assessment table
+CREATE TABLE assessment (
+    reg_no INT PRIMARY KEY,
+    name VARCHAR(100),
+    mark1 INT,
+    mark2 INT,
+    mark3 INT,
+    total INT
 );
 
--- Step 2: Insert Sample Data
-INSERT INTO Bank VALUES
-(1001, 'Anu', 450.00, 'Chennai'),
-(1002, 'Ravi', 1000.00, 'Delhi'),
-(1003, 'Meena', 300.00, 'Hyderabad'),
-(1004, 'Kiran', 800.00, 'Mumbai');
+-- Step 2: Create dept_details table
+CREATE TABLE dept_details (
+    dept_no INT PRIMARY KEY,
+    dept_name VARCHAR(100),
+    location VARCHAR(100)
+);
 
--- Step 3: Create PL/pgSQL Procedure to Check Balance
-CREATE OR REPLACE PROCEDURE check_balance(accno INT)
+-- Step 3: Function to print grade based on a mark
+CREATE OR REPLACE FUNCTION PrintGrade(mark INT)
+RETURNS TEXT
 LANGUAGE plpgsql
 AS $$
-DECLARE
-    bal NUMERIC;
-    uname VARCHAR;
 BEGIN
-    SELECT name, balance INTO uname, bal FROM Bank WHERE acc_no = accno;
-
-    IF NOT FOUND THEN
-        RAISE NOTICE 'Account not found.';
-        RETURN;
-    END IF;
-
-    RAISE NOTICE 'Customer Name: %', uname;
-    RAISE NOTICE 'Current Balance: ₹%', bal;
-
-    IF bal < 500 THEN
-        RAISE NOTICE '⚠️ Alert: Account balance is below minimum (₹500)!';
+    IF mark BETWEEN 91 AND 100 THEN
+        RETURN 'Grade A';
+    ELSIF mark BETWEEN 81 AND 90 THEN
+        RETURN 'Grade B';
+    ELSIF mark BETWEEN 71 AND 80 THEN
+        RETURN 'Grade C';
+    ELSIF mark BETWEEN 60 AND 70 THEN
+        RETURN 'Grade D';
     ELSE
-        RAISE NOTICE '✅ Balance is sufficient.';
+        RETURN 'Grade E';
     END IF;
 END;
 $$;
 
--- Step 4: Example Call
--- CALL check_balance(1001); -- Should show low balance alert
--- CALL check_balance(1002); -- Should show sufficient balance
+-- Example usage:
+-- SELECT PrintGrade(85);
+
+-- Step 4: Trigger to check for nulls before insert in assessment table
+CREATE OR REPLACE FUNCTION validate_assessment_data()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF NEW.name IS NULL OR NEW.mark1 IS NULL OR NEW.mark2 IS NULL OR NEW.mark3 IS NULL THEN
+        RAISE EXCEPTION 'Null values are not allowed in name or marks.';
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER check_nulls_before_insert
+BEFORE INSERT ON assessment
+FOR EACH ROW
+EXECUTE FUNCTION validate_assessment_data();
+
+-- Step 5: Insert example data (this will succeed)
+INSERT INTO assessment (reg_no, name, mark1, mark2, mark3, total)
+VALUES (1, 'Arun', 85, 90, 88, 263);
+
+-- This one would raise an exception due to null
+-- INSERT INTO assessment (reg_no, name, mark1, mark2, mark3, total)
+-- VALUES (2, NULL, 70, 80, 90, 240);
