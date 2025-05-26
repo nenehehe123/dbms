@@ -1,46 +1,60 @@
--- Step 1: Create dept_details Table
-CREATE TABLE dept_details (
-    dept_no INT PRIMARY KEY,
-    dept_name VARCHAR(50),
-    location VARCHAR(50)
+-- Step 1: Create Department Table
+CREATE TABLE Department (
+    Deptno INT PRIMARY KEY,
+    Dname VARCHAR(100),
+    Dloc VARCHAR(100)
 );
 
--- Insert Sample Departments
-INSERT INTO dept_details VALUES
-(1, 'CSE', 'Chennai'),
-(2, 'ECE', 'Bangalore'),
-(3, 'EEE', 'Hyderabad');
-
--- Step 2: Create student Table
-CREATE TABLE student (
-    reg_no INT PRIMARY KEY,
-    name VARCHAR(50),
-    dept_no INT,
-    FOREIGN KEY (dept_no) REFERENCES dept_details(dept_no)
+-- Step 2: Create Employee Table
+CREATE TABLE Employee (
+    Empno INT PRIMARY KEY,
+    Ename VARCHAR(100),
+    Job VARCHAR(50),
+    MgrId INT,
+    DOB DATE,
+    DoJ DATE,
+    Sal NUMERIC,
+    Comm NUMERIC,
+    Deptno INT REFERENCES Department(Deptno)
 );
 
--- Insert Sample Students
-INSERT INTO student VALUES
-(101, 'Anu', 1),
-(102, 'Ravi', 1),
-(103, 'Meena', 2),
-(104, 'Karan', 1),
-(105, 'John', 3);
+-- Step 3: Display Empno, name, salary, experience ordered by salary (high to low)
+SELECT Empno, Ename, Sal,
+       DATE_PART('year', age(current_date, DoJ)) AS Experience
+FROM Employee
+ORDER BY Sal DESC;
 
--- Step 3: Create the Function to Count Students
-CREATE OR REPLACE FUNCTION count_students_in_dept(dno INT)
-RETURNS INT AS $$
-DECLARE
-    total INT;
+-- Step 4: List employees working in "Marketing" department
+SELECT E.Ename
+FROM Employee E
+JOIN Department D ON E.Deptno = D.Deptno
+WHERE D.Dname = 'Marketing';
+
+-- Step 5: List employees born in the current month
+SELECT Ename, DOB
+FROM Employee
+WHERE EXTRACT(MONTH FROM DOB) = EXTRACT(MONTH FROM CURRENT_DATE);
+
+-- Step 6: PL/PGSQL function to display employee details when Empno is input
+CREATE OR REPLACE FUNCTION GetEmpDetails(eid INT)
+RETURNS TABLE (
+    Empno INT,
+    Ename VARCHAR,
+    Job VARCHAR,
+    DOB DATE,
+    DoJ DATE,
+    Sal NUMERIC,
+    Deptno INT
+)
+LANGUAGE plpgsql
+AS $$
 BEGIN
-    SELECT COUNT(*) INTO total
-    FROM student
-    WHERE dept_no = dno;
-
-    RETURN total;
+    RETURN QUERY
+    SELECT Empno, Ename, Job, DOB, DoJ, Sal, Deptno
+    FROM Employee
+    WHERE Empno = eid;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
--- Step 4: Example Usage
--- SELECT count_students_in_dept(1); -- Output: 3 (for CSE)
--- SELECT count_students_in_dept(2); -- Output: 1 (for ECE)
+-- Example call:
+-- SELECT * FROM GetEmpDetails(101);
