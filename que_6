@@ -1,0 +1,57 @@
+-- Step 1: Create Tables
+CREATE TABLE Customer (
+    Custid INT PRIMARY KEY,
+    Custname VARCHAR(100),
+    phno VARCHAR(15),
+    pan VARCHAR(20),
+    DOB DATE
+);
+
+CREATE TABLE HomeLoan (
+    HLoanid INT PRIMARY KEY,
+    Amount NUMERIC,
+    Custid INT REFERENCES Customer(Custid)
+);
+
+CREATE TABLE VehicleLoan (
+    VLoanid INT PRIMARY KEY,
+    Amount NUMERIC,
+    Custid INT REFERENCES Customer(Custid)
+);
+
+-- Step 2: Customers who have both home and vehicle loans
+SELECT C.Custid
+FROM Customer C
+JOIN HomeLoan H ON C.Custid = H.Custid
+JOIN VehicleLoan V ON C.Custid = V.Custid;
+
+-- Step 3: Customers who don’t have any loan
+SELECT C.Custid
+FROM Customer C
+LEFT JOIN HomeLoan H ON C.Custid = H.Custid
+LEFT JOIN VehicleLoan V ON C.Custid = V.Custid
+WHERE H.Custid IS NULL AND V.Custid IS NULL;
+
+-- Step 4: View with Custid, Custname and Total Loan Amount
+CREATE OR REPLACE VIEW TotalLoansView AS
+SELECT 
+    C.Custid, 
+    C.Custname, 
+    COALESCE(H.Amount, 0) + COALESCE(V.Amount, 0) AS TotalLoanAmount
+FROM Customer C
+LEFT JOIN HomeLoan H ON C.Custid = H.Custid
+LEFT JOIN VehicleLoan V ON C.Custid = V.Custid;
+
+-- Step 5: Trigger to show homeloan details when inserted
+CREATE OR REPLACE FUNCTION ShowHomeLoanDetails()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE NOTICE 'New HomeLoan inserted - ID: %, Amount: %, Custid: %', NEW.HLoanid, NEW.Amount, NEW.Custid;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_show_homeloan
+AFTER INSERT ON HomeLoan
+FOR EACH ROW
+EXECUTE FUNCTION ShowHomeLoanDetails();
