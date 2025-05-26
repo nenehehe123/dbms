@@ -1,0 +1,45 @@
+-- Step 1: Create Tables
+CREATE TABLE Dept (
+    Deptno INT PRIMARY KEY,
+    Dname VARCHAR(100),
+    Loc VARCHAR(100),
+    DeptmanagerId INT
+);
+
+CREATE TABLE Employee (
+    EmpId INT PRIMARY KEY,
+    Empname VARCHAR(100),
+    Sal NUMERIC,
+    Deptno INT REFERENCES Dept(Deptno)
+);
+
+-- Step 2: Count of Employees & Average Salary per Department
+SELECT Deptno, COUNT(*) AS EmpCount, AVG(Sal) AS AvgSalary
+FROM Employee
+GROUP BY Deptno;
+
+-- Step 3: Employee Name, Department Name, Salary
+SELECT E.Empname, D.Dname, E.Sal
+FROM Employee E
+JOIN Dept D ON E.Deptno = D.Deptno;
+
+-- Step 4: Employee Name and Department Manager Name
+SELECT E.Empname AS Employee, M.Empname AS Manager
+FROM Employee E
+JOIN Dept D ON E.Deptno = D.Deptno
+JOIN Employee M ON D.DeptmanagerId = M.EmpId;
+
+-- Step 5: Procedure to Get Salary of Employee by EmpId
+CREATE OR REPLACE PROCEDURE GetSalary(IN eid INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    salary NUMERIC;
+BEGIN
+    SELECT Sal INTO salary FROM Employee WHERE EmpId = eid;
+    RAISE NOTICE 'Salary: %', salary;
+END;
+$$;
+
+-- Call Example:
+-- CALL GetSalary(101);
