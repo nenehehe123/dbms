@@ -1,0 +1,34 @@
+-- Step 1: Create Bank Table
+CREATE TABLE Bank (
+    acc_no INT PRIMARY KEY,
+    name VARCHAR(50),
+    balance NUMERIC(10,2),
+    branch VARCHAR(50)
+);
+
+-- Step 2: Insert Sample Records
+INSERT INTO Bank VALUES
+(1001, 'Arjun', 25000, 'Delhi'),
+(1002, 'Neha', 40000, 'Mumbai'),
+(1003, 'Rahul', 30000, 'Hyderabad'),
+(1004, 'Sneha', 15000, 'Delhi'),
+(1005, 'Jai', 50000, 'Chennai');
+
+-- Step 3: PL/pgSQL Code to Find Reverse of a Number
+DO $$
+DECLARE
+    n INT := 12345;
+    rev INT := 0;
+BEGIN
+    WHILE n > 0 LOOP
+        rev := rev * 10 + n % 10;
+        n := n / 10;
+    END LOOP;
+    RAISE NOTICE 'Reversed number is: %', rev;
+END $$;
+
+-- Step 4: Delete all account tuples in the ‘Delhi’ branch
+DELETE FROM Bank WHERE branch = 'Delhi';
+
+-- Step 5: Display all Customer names from either Mumbai or Hyderabad
+SELECT name FROM Bank WHERE branch IN ('Mumbai', 'Hyderabad');
