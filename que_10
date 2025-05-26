@@ -29,3 +29,47 @@ SELECT name FROM Customer ORDER BY city;
 SELECT branch, COUNT(*) AS acc_count
 FROM Bank
 GROUP BY branch;
+
+
+----------------insert--------------------
+CREATE TABLE Customer (
+    cust_id INT PRIMARY KEY,
+    name VARCHAR(100),
+    city VARCHAR(50)
+);
+
+CREATE TABLE Bank (
+    acc_no INT PRIMARY KEY,
+    cust_id INT REFERENCES Customer(cust_id),
+    branch VARCHAR(50),
+    balance NUMERIC
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    cust_id INT REFERENCES Customer(cust_id),
+    branch VARCHAR(50),
+    amount NUMERIC
+);
+
+
+INSERT INTO Customer (cust_id, name, city) VALUES
+(1, 'Amit', 'Mumbai'),
+(2, 'Priya', 'Delhi'),
+(3, 'Rahul', 'Hyderabad'),
+(4, 'Sneha', 'Chennai'),
+(5, 'Vikram', 'Mumbai');
+
+INSERT INTO Bank (acc_no, cust_id, branch, balance) VALUES
+(101, 1, 'Mumbai', 100000),
+(102, 2, 'Delhi', 85000),
+(103, 3, 'Hyderabad', 92000),
+(104, 4, 'Chennai', 50000),
+(105, 5, 'Mumbai', 60000);
+
+INSERT INTO Loan (loan_no, cust_id, branch, amount) VALUES
+(201, 1, 'Adyar', 60000),
+(202, 2, 'Delhi', 15000),
+(203, 3, 'Hyderabad', 12000),
+(204, 4, 'Adyar', 30000),
+(205, 5, 'Mumbai', 70000);
