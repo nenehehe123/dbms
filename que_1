@@ -1,0 +1,45 @@
+-- Step 1: Create Tables
+CREATE TABLE Customer (
+    Custid INT PRIMARY KEY,
+    Custname VARCHAR(100),
+    Age INT,
+    phone VARCHAR(15)
+);
+
+CREATE TABLE Loan (
+    Loanid INT PRIMARY KEY,
+    Amount NUMERIC,
+    Custid INT REFERENCES Customer(Custid),
+    EMI NUMERIC
+);
+
+-- Step 2: Query - Customers with loan > 50,000
+SELECT Custname 
+FROM Customer 
+JOIN Loan ON Customer.Custid = Loan.Custid 
+WHERE Amount > 50000;
+
+-- Step 3: Query - Customers with no loan
+SELECT Custid 
+FROM Customer 
+LEFT JOIN Loan ON Customer.Custid = Loan.Custid 
+WHERE Loanid IS NULL;
+
+-- Step 4: Query - Total loan count
+SELECT COUNT(*) AS TotalLoans FROM Loan;
+
+-- Step 5: Procedure - Get Amount and Custid using Loanid
+CREATE OR REPLACE PROCEDURE GetLoanDetails(IN lid INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    amt NUMERIC;
+    cid INT;
+BEGIN
+    SELECT Amount, Custid INTO amt, cid FROM Loan WHERE Loanid = lid;
+    RAISE NOTICE 'Amount: %, Customer ID: %', amt, cid;
+END;
+$$;
+
+-- Call Example:
+-- CALL GetLoanDetails(101);
