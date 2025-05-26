@@ -1,0 +1,55 @@
+-- Step 1: Create Table STUD1
+CREATE TABLE STUD1 (
+    REG_NO INT PRIMARY KEY,
+    NAME VARCHAR(50),
+    MARK_1 INT,
+    MARK_2 INT,
+    RESULT VARCHAR(10)
+);
+
+-- Step 2: Insert Values into STUD1
+INSERT INTO STUD1 VALUES
+(101, 'AAA', 89, 80, 'PASS'),
+(102, 'BBB', 70, 75, 'PASS'),
+(103, 'CCC', 65, 70, 'PASS'),
+(104, 'DDD', 95, 100, 'PASS');
+
+-- Step 3: Create Table STUD2
+CREATE TABLE STUD2 (
+    NAME VARCHAR(50),
+    GRADE CHAR(1)
+);
+
+-- Step 4: Insert Values into STUD2
+INSERT INTO STUD2 VALUES
+('AAA', 'S'),
+('BBB', 'A'),
+('CCC', 'B'),
+('DDD', 'S');
+
+-- Q1: Left Outer Join
+SELECT S1.NAME, S2.GRADE
+FROM STUD1 S1
+LEFT JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+
+-- Q2: Right Outer Join
+SELECT S2.NAME, S1.REG_NO, S1.RESULT
+FROM STUD1 S1
+RIGHT JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+
+-- Q3: Full Outer Join
+SELECT COALESCE(S1.NAME, S2.NAME) AS NAME, S1.REG_NO
+FROM STUD1 S1
+FULL OUTER JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+
+-- Q4: Simple Procedure to Display 'Hello World!'
+CREATE OR REPLACE PROCEDURE say_hello()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RAISE NOTICE 'Hello World!';
+END;
+$$;
+
+-- To call the procedure
+CALL say_hello();
