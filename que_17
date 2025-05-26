@@ -5,7 +5,8 @@ CREATE TABLE assessment (
     mark1 INT,
     mark2 INT,
     mark3 INT,
-    total INT
+    total INT,
+    dept VARCHAR(50)
 );
 
 -- Step 2: Create dept_details table
@@ -15,7 +16,7 @@ CREATE TABLE dept_details (
     location VARCHAR(100)
 );
 
--- Step 3: Function to print grade based on a mark
+-- Step 3: Function to print grade
 CREATE OR REPLACE FUNCTION PrintGrade(mark INT)
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -35,10 +36,10 @@ BEGIN
 END;
 $$;
 
--- Example usage:
--- SELECT PrintGrade(85);
+-- Example:
+-- SELECT PrintGrade(85); -- Returns 'Grade B'
 
--- Step 4: Trigger to check for nulls before insert in assessment table
+-- Step 4: Trigger function to prevent NULL insertions
 CREATE OR REPLACE FUNCTION validate_assessment_data()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -56,10 +57,28 @@ BEFORE INSERT ON assessment
 FOR EACH ROW
 EXECUTE FUNCTION validate_assessment_data();
 
--- Step 5: Insert example data (this will succeed)
-INSERT INTO assessment (reg_no, name, mark1, mark2, mark3, total)
-VALUES (1, 'Arun', 85, 90, 88, 263);
+-- Step 5: Insert sample data
+INSERT INTO assessment (reg_no, name, mark1, mark2, mark3, total, dept)
+VALUES
+(1, 'Arun', 85, 90, 88, 263, 'CSE'),
+(2, 'Divya', 70, 75, 80, 225, 'ECE'),
+(3, 'Ravi', 60, 65, 70, 195, 'CSE');
 
--- This one would raise an exception due to null
--- INSERT INTO assessment (reg_no, name, mark1, mark2, mark3, total)
--- VALUES (2, NULL, 70, 80, 90, 240);
+-- Step 6: Function to count students in a department
+CREATE OR REPLACE FUNCTION CountStudentsInDept(dept_name VARCHAR)
+RETURNS INT
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    student_count INT;
+BEGIN
+    SELECT COUNT(*) INTO student_count
+    FROM assessment
+    WHERE dept = dept_name;
+    
+    RETURN student_count;
+END;
+$$;
+
+-- Example:
+-- SELECT CountStudentsInDept('CSE'); -- Returns 2
