@@ -1,0 +1,57 @@
+-- Step 1: Create Tables
+CREATE TABLE Booth (
+    Boothid INT PRIMARY KEY,
+    Location VARCHAR(100),
+    BIncharge VARCHAR(100)
+);
+
+CREATE TABLE Voter (
+    VoterId INT PRIMARY KEY,
+    Votername VARCHAR(100),
+    Gender VARCHAR(10),
+    Boothid INT REFERENCES Booth(Boothid),
+    Checkvote INT CHECK (Checkvote IN (0, 1))
+);
+
+-- Step 2: Count of voters in each booth
+SELECT Boothid, COUNT(*) AS TotalVoters
+FROM Voter
+GROUP BY Boothid;
+
+-- Step 3: Count of Male voters who voted
+SELECT COUNT(*) AS MaleVoted
+FROM Voter
+WHERE Gender = 'Male' AND Checkvote = 1;
+
+-- Step 4: Total count of voters who voted
+SELECT COUNT(*) AS TotalVoted
+FROM Voter
+WHERE Checkvote = 1;
+
+-- Step 5: Booth ID, location and count of voters voted
+SELECT B.Boothid, B.Location, COUNT(V.VoterId) AS VotedCount
+FROM Booth B
+JOIN Voter V ON B.Boothid = V.Boothid
+WHERE V.Checkvote = 1
+GROUP BY B.Boothid, B.Location;
+
+-- Step 6: Function to return poll percentage in a booth
+CREATE OR REPLACE FUNCTION GetPollPercentage(bid INT)
+RETURNS NUMERIC AS $$
+DECLARE
+    total INT;
+    voted INT;
+    percentage NUMERIC;
+BEGIN
+    SELECT COUNT(*) INTO total FROM Voter WHERE Boothid = bid;
+    SELECT COUNT(*) INTO voted FROM Voter WHERE Boothid = bid AND Checkvote = 1;
+    IF total = 0 THEN
+        RETURN 0;
+    END IF;
+    percentage := (voted * 100.0) / total;
+    RETURN percentage;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Call Example:
+-- SELECT GetPollPercentage(101);
