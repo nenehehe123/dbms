@@ -1,0 +1,48 @@
+-- Step 1: Create the Book Table
+CREATE TABLE Book (
+    book_name VARCHAR(100),
+    author_name VARCHAR(100),
+    price NUMERIC(8,2),
+    quantity INT
+);
+
+-- Step 2: Insert Sample Data
+INSERT INTO Book VALUES
+('Learn SQL', 'Alex Martin', 450.00, 10),
+('PostgreSQL Guide', 'Alan White', 650.00, 5),
+('Database for Dummies', 'David Smith', 500.00, 8),
+('Advanced DBMS', 'Alice Brown', 700.00, 3),
+('AI and DB', 'Amanda Ray', 550.00, 7);
+
+-- Q1: Update quantity by doubling it
+UPDATE Book SET quantity = quantity * 2;
+
+-- Q2: List all book_name whose price > 'Database for Dummies'
+SELECT book_name FROM Book
+WHERE price > (SELECT price FROM Book WHERE book_name = 'Database for Dummies');
+
+-- Q3: Retrieve author names starting with 'a' with book_name and price
+SELECT author_name, book_name, price
+FROM Book
+WHERE LOWER(author_name) LIKE 'a%';
+
+-- Q4: PL/pgSQL Function to find total books of the same author
+CREATE OR REPLACE FUNCTION total_books_by_author(a_name VARCHAR)
+RETURNS INT AS $$
+DECLARE
+    total_qty INT;
+BEGIN
+    SELECT SUM(quantity) INTO total_qty
+    FROM Book
+    WHERE author_name = a_name;
+
+    IF total_qty IS NULL THEN
+        RETURN 0;
+    END IF;
+
+    RETURN total_qty;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Call the function (example)
+SELECT total_books_by_author('Alice Brown');
