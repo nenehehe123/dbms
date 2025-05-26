@@ -1,0 +1,53 @@
+-- Step 1: Create Tables
+CREATE TABLE STUD1 (
+    REG_NO INT PRIMARY KEY,
+    NAME VARCHAR(50),
+    MARK_1 INT,
+    MARK_2 INT,
+    RESULT VARCHAR(10)
+);
+
+CREATE TABLE STUD2 (
+    NAME VARCHAR(50),
+    GRADE CHAR(1)
+);
+
+-- Step 2: Insert Sample Data
+INSERT INTO STUD1 VALUES 
+(101, 'AAA', 89, 80, 'PASS'),
+(102, 'BBB', 70, 75, 'PASS'),
+(103, 'CCC', 65, 70, 'PASS'),
+(104, 'DDD', 95, 100, 'PASS');
+
+INSERT INTO STUD2 VALUES 
+('AAA', 'S'),
+('BBB', 'A'),
+('CCC', 'B'),
+('DDD', 'S');
+
+-- Step 3: Q1 - Left outer join: Student name and grade
+SELECT S1.NAME, S2.GRADE
+FROM STUD1 S1
+LEFT JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+
+-- Step 4: Q2 - Right outer join: Student name, reg no, result
+SELECT S2.NAME, S1.REG_NO, S1.RESULT
+FROM STUD1 S1
+RIGHT JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+
+-- Step 5: Q3 - Full outer join: Name and register number
+SELECT COALESCE(S1.NAME, S2.NAME) AS NAME, S1.REG_NO
+FROM STUD1 S1
+FULL OUTER JOIN STUD2 S2 ON S1.NAME = S2.NAME;
+
+-- Step 6: Q4 - Simple procedure to display "Hello World!"
+CREATE OR REPLACE PROCEDURE HelloWorld()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RAISE NOTICE 'Hello World!';
+END;
+$$;
+
+-- Call Example:
+-- CALL HelloWorld();
