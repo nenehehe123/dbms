@@ -1,0 +1,42 @@
+-- Step 1: Create Bank Table
+CREATE TABLE Bank (
+    acc_no INT PRIMARY KEY,
+    name VARCHAR(50),
+    balance NUMERIC(10,2),
+    branch VARCHAR(50)
+);
+
+-- Step 2: Insert Sample Data
+INSERT INTO Bank (acc_no, name, balance, branch) VALUES
+(101, 'Rahul', 1200.00, 'Mumbai'),
+(102, 'Sneha', 300.00, 'Delhi'),
+(103, 'Ajay', 450.00, 'Hydrabad'),
+(104, 'Priya', 600.00, 'Chennai'),
+(105, 'Ravi', 200.00, 'Delhi');
+
+-- Step 3: PL/pgSQL Function to Notify Low Balance
+CREATE OR REPLACE FUNCTION check_low_balance(p_acc_no INT)
+RETURNS TEXT AS $$
+DECLARE
+    bal NUMERIC;
+BEGIN
+    SELECT balance INTO bal FROM Bank WHERE acc_no = p_acc_no;
+
+    IF NOT FOUND THEN
+        RETURN 'Account not found.';
+    ELSIF bal < 500 THEN
+        RETURN format('Alert: Balance is low (₹%.2f)', bal);
+    ELSE
+        RETURN format('Balance is sufficient (₹%.2f)', bal);
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Step 4: Delete Accounts from 'Delhi' Branch
+DELETE FROM Bank
+WHERE branch = 'Delhi';
+
+-- Step 5: Display Customers from Mumbai or Hydrabad
+SELECT name, branch
+FROM Bank
+WHERE branch IN ('Mumbai', 'Hydrabad');
