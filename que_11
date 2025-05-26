@@ -1,0 +1,67 @@
+-- Step 1: Create Tables
+CREATE TABLE Account (
+    acc_no INT PRIMARY KEY,
+    cust_name VARCHAR(50),
+    balance NUMERIC(10,2),
+    branch VARCHAR(50)
+);
+
+CREATE TABLE Loan (
+    loan_no INT PRIMARY KEY,
+    branch VARCHAR(50),
+    amount NUMERIC(10,2)
+);
+
+-- Step 2: Insert Sample Data
+INSERT INTO Account VALUES
+(201, 'Anita', 10000, 'Delhi'),
+(202, 'Ravi', 20000, 'Adyar'),
+(203, 'Ramesh', 15000, 'Mumbai'),
+(204, 'Sneha', 50000, 'Hydrabad'),
+(205, 'Pooja', 30000, 'Delhi');
+
+INSERT INTO Loan VALUES
+(301, 'Adyar', 60000),
+(302, 'Mumbai', 18000),
+(303, 'Adyar', 12000),
+(304, 'Hydrabad', 25000);
+
+-- Q1: Modify balance by decreasing it by 10%
+UPDATE Account
+SET balance = balance * 0.9;
+
+-- Q2: Delete accounts in ‘Delhi’
+DELETE FROM Account
+WHERE branch = 'Delhi';
+
+-- Q3: Delete all loans with loan amount between 10000 and 20000
+DELETE FROM Loan
+WHERE amount BETWEEN 10000 AND 20000;
+
+-- Q4: Find all branch names in the loan relation
+SELECT DISTINCT branch FROM Loan;
+
+-- Q5: Display all customer names from either Mumbai or Hydrabad
+SELECT cust_name FROM Account
+WHERE branch IN ('Mumbai', 'Hydrabad');
+
+-- Q6: Find all loan numbers for loans made at the ‘Adyar’ branch with amount > 50000
+SELECT loan_no FROM Loan
+WHERE branch = 'Adyar' AND amount > 50000;
+
+-- Q7: Find loan numbers of those loans with amount between 10000 and 20000
+SELECT loan_no FROM Loan
+WHERE amount BETWEEN 10000 AND 20000;
+
+-- Q8: Display customer names in alphabetical order
+SELECT cust_name FROM Account
+ORDER BY cust_name;
+
+-- Q9: Display all customer names ordered by customer city
+SELECT cust_name, branch FROM Account
+ORDER BY branch;
+
+-- Q10: Count of how many account holders are in each branch
+SELECT branch, COUNT(*) AS account_count
+FROM Account
+GROUP BY branch;
