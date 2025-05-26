@@ -1,0 +1,57 @@
+-- Step 1: Create Tables
+CREATE TABLE Book (
+    Bookid INT PRIMARY KEY,
+    Book_name VARCHAR(100),
+    Author VARCHAR(100),
+    Publication VARCHAR(100),
+    Price NUMERIC
+);
+
+CREATE TABLE "User" (
+    Userid INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Dept VARCHAR(100),
+    Bookid INT REFERENCES Book(Bookid),
+    Accdate DATE
+);
+
+-- Step 2: User who accessed costliest book
+SELECT U.Name
+FROM "User" U
+JOIN Book B ON U.Bookid = B.Bookid
+WHERE B.Price = (SELECT MAX(Price) FROM Book);
+
+-- Step 3: Count of books accessed by each user
+SELECT Userid, COUNT(Bookid) AS BooksAccessed
+FROM "User"
+GROUP BY Userid;
+
+-- Step 4: Books published by Wiley
+SELECT Book_name
+FROM Book
+WHERE Publication = 'Wiley';
+
+-- Step 5: Procedure to print book details by Bookid
+CREATE OR REPLACE PROCEDURE GetBookDetails(IN bid INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    bname VARCHAR;
+    auth VARCHAR;
+    pub VARCHAR;
+    price NUMERIC;
+BEGIN
+    SELECT Book_name, Author, Publication, Price
+    INTO bname, auth, pub, price
+    FROM Book
+    WHERE Bookid = bid;
+
+    RAISE NOTICE 'Book Name: %', bname;
+    RAISE NOTICE 'Author: %', auth;
+    RAISE NOTICE 'Publication: %', pub;
+    RAISE NOTICE 'Price: %', price;
+END;
+$$;
+
+-- Call Example:
+-- CALL GetBookDetails(103);
