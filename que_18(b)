@@ -1,0 +1,23 @@
+-- Procedure to print Fibonacci series up to n terms
+CREATE OR REPLACE PROCEDURE FibonacciSeries(n INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    a INT := 0;
+    b INT := 1;
+    temp INT;
+    i INT := 1;
+BEGIN
+    RAISE NOTICE 'Fibonacci Series up to % terms:', n;
+    WHILE i <= n LOOP
+        RAISE NOTICE '%', a;
+        temp := a + b;
+        a := b;
+        b := temp;
+        i := i + 1;
+    END LOOP;
+END;
+$$;
+
+-- Example call:
+-- CALL FibonacciSeries(7);
