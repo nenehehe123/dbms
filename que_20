@@ -1,56 +1,67 @@
--- Step 1: Create the Book Table
+-- Step 1: Create Book table
 CREATE TABLE Book (
     acc_no INT PRIMARY KEY,
-    username VARCHAR(50),
+    username VARCHAR(100),
     bookno INT,
-    days INT,
-    created_on DATE
+    days INT
 );
 
--- Step 2: Insert Sample Data
-INSERT INTO Book (acc_no, username, bookno, days, created_on) VALUES
-(201, 'John', 601, 4, '2023-06-16'),
-(202, 'Jessica', 602, 7, '2023-06-14'),
-(203, 'James', 603, 2, '2023-07-18'),
-(204, 'Alice', 604, 5, '2023-07-10'),
-(205, 'Jack', 605, 8, '2023-08-20');
+-- Step 2: Insert sample data
+INSERT INTO Book VALUES
+(1, 'John', 101, 4),
+(2, 'Jacob', 102, 6),
+(3, 'Anu', 103, 2),
+(4, 'Ravi', 104, 10);
 
--- Step 3: PL/pgSQL Procedure to Calculate Fine (Rs.5 per day)
-CREATE OR REPLACE FUNCTION calculate_fine(p_acc_no INT)
-RETURNS INT AS $$
+-- Step 3: Procedure to calculate fine
+CREATE OR REPLACE PROCEDURE CalculateFine(IN acc INT)
+LANGUAGE plpgsql
+AS $$
 DECLARE
-    overdue_days INT;
+    d INT;
+    u VARCHAR;
+    fine INT;
 BEGIN
-    SELECT days INTO overdue_days FROM Book WHERE acc_no = p_acc_no;
-
-    IF NOT FOUND THEN
-        RAISE NOTICE 'Account not found';
-        RETURN NULL;
-    END IF;
-
-    RETURN overdue_days * 5;
+    SELECT days, username INTO d, u FROM Book WHERE acc_no = acc;
+    fine := d * 5;
+    RAISE NOTICE 'Username: %, Fine: ₹%', u, fine;
 END;
-$$ LANGUAGE plpgsql;
+$$;
 
--- Step 4: PL/pgSQL Block to Find Greatest of Three Numbers
+-- Example call:
+-- CALL CalculateFine(1);
+-- CALL CalculateFine(2);
+
+---(part-B)
 DO $$
 DECLARE
-    a INT := 12;
-    b INT := 45;
-    c INT := 30;
-    max_val INT;
+    a INT := 15;
+    b INT := 42;
+    c INT := 29;
+    greatest INT;
 BEGIN
-    max_val := GREATEST(a, b, c);
-    RAISE NOTICE 'Greatest number is: %', max_val;
-END $$;
+    greatest := GREATEST(a, b, c);
+    RAISE NOTICE 'Greatest number is: %', greatest;
+END;
+$$;
 
--- Step 5: Query - Count of Books by Users Starting with 'J'
-SELECT username, COUNT(*) AS total_books
+----(part-c)
+SELECT COUNT(*) AS BookCount
 FROM Book
-WHERE username ILIKE 'J%'
-GROUP BY username;
+WHERE username ILIKE 'J%';
 
--- Step 6: Query - Users with Accounts Created After 15th of Month
+
+-----(part-D)---
+-- Add column for account creation date
+ALTER TABLE Book ADD COLUMN created_on DATE;
+
+-- Sample updates
+UPDATE Book SET created_on = DATE '2024-05-10' WHERE acc_no = 1;
+UPDATE Book SET created_on = DATE '2024-05-16' WHERE acc_no = 2;
+UPDATE Book SET created_on = DATE '2024-04-20' WHERE acc_no = 3;
+UPDATE Book SET created_on = DATE '2024-04-12' WHERE acc_no = 4;
+
+-- Query to find users with created_on after 15th of any month
 SELECT username, acc_no
 FROM Book
 WHERE EXTRACT(DAY FROM created_on) > 15;
