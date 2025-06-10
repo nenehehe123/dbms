@@ -1,0 +1,71 @@
+-- a. Return the login’s user name
+SELECT CURRENT_USER AS login_username;
+
+-- b. Calculate age using DOB in PL/pgSQL
+DO $$
+DECLARE
+    dob DATE := DATE '2000-05-10';  -- Replace with your actual date of birth
+    age INTERVAL;
+BEGIN
+    age := age(dob);
+    RAISE NOTICE 'Your age is: % years % months % days',
+        EXTRACT(YEAR FROM age),
+        EXTRACT(MONTH FROM age),
+        EXTRACT(DAY FROM age);
+END;
+$$;
+
+-- c. Create a table and use sequence to insert values 1 to 50
+CREATE SEQUENCE num_seq START 1 INCREMENT 1 MAXVALUE 50;
+
+CREATE TABLE Numbers (
+    num INT
+);
+
+DO $$
+BEGIN
+    FOR i IN 1..50 LOOP
+        INSERT INTO Numbers VALUES (nextval('num_seq'));
+    END LOOP;
+END;
+$$;
+
+-- d. Create Student table and insert data
+CREATE TABLE Student (
+    Regno INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Dept VARCHAR(50)
+);
+
+INSERT INTO Student VALUES
+(101, 'Arun', 'CSE'),
+(102, 'Bala', 'ECE'),
+(103, 'Charan', 'CSE'),
+(104, 'Divya', 'IT'),
+(105, 'Esha', 'CSE');
+
+-- e. Create a view for CSE department students
+CREATE OR REPLACE VIEW CSE_Students AS
+SELECT * FROM Student
+WHERE Dept = 'CSE';
+
+-- f. PL/pgSQL procedure to find student details by Regno
+CREATE OR REPLACE PROCEDURE show_student_details(IN rno INT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    s RECORD;
+BEGIN
+    SELECT * INTO s FROM Student WHERE Regno = rno;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Student with Regno % not found.', rno;
+    ELSE
+        RAISE NOTICE E'--- Student Details ---\nRegno: %\nName: %\nDept: %',
+                     s.Regno, s.Name, s.Dept;
+    END IF;
+END;
+$$;
+
+-- To call the procedure:
+-- CALL show_student_details(101);
